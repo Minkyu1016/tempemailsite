@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+
   <title>임시메일 생성기</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='80'>✉️</text></svg>'>
 
@@ -53,7 +54,7 @@
       padding: 10px;
       border-radius: 8px;
       display: inline-block;
-      word-break: break-word;
+      word-break: break-all;
     }
     #error { color: red; margin-top: 10px; font-size: 14px; }
     #mail-list, #mail-content {
@@ -90,139 +91,139 @@
     <div id="mail-content"></div>
   </div>
 
-  <script>
-    const accounts = [
-      { username: "minkyu4635", password: "mint3614" },
-      { username: "admin", password: "admin123" },
-      { username: "tester", password: "testpass" }
-    ];
+<script>
+  const accounts = [
+    { username: "minkyu4635", password: "mint3614" },
+    { username: "admin", password: "admin123" },
+    { username: "tester", password: "testpass" }
+  ];
 
-    let token = "";
-    let address = "";
-    let accountId = "";
+  let token = "";
+  let address = "";
+  let accountId = "";
 
-    window.onload = () => {
-      const savedAddress = localStorage.getItem("mailtm_address");
-      const savedToken = localStorage.getItem("mailtm_token");
-      const savedAccountId = localStorage.getItem("mailtm_accountId");
-      if (savedAddress && savedToken && savedAccountId) {
-        address = savedAddress;
-        token = savedToken;
-        accountId = savedAccountId;
-        document.getElementById('login').style.display = "none";
-        document.getElementById('app').style.display = "block";
-        document.getElementById("email").innerText = address;
-        fetchMailList();
-      }
-    };
-
-    function login() {
-      const user = document.getElementById('username').value.trim();
-      const pass = document.getElementById('password').value.trim();
-      const match = accounts.find(acc => acc.username === user && acc.password === pass);
-      if (match) {
-        document.getElementById('login').style.display = "none";
-        document.getElementById('app').style.display = "block";
-        clearMailList();
-        clearMailContent();
-      } else {
-        document.getElementById('error').innerText = "아이디 또는 비밀번호가 잘못되었습니다.";
-      }
+  window.onload = () => {
+    const savedAddress = localStorage.getItem("mailtm_address");
+    const savedToken = localStorage.getItem("mailtm_token");
+    const savedAccountId = localStorage.getItem("mailtm_accountId");
+    if (savedAddress && savedToken && savedAccountId) {
+      address = savedAddress;
+      token = savedToken;
+      accountId = savedAccountId;
+      document.getElementById('login').style.display = "none";
+      document.getElementById('app').style.display = "block";
+      document.getElementById("email").innerText = address;
+      fetchMailList();
     }
+  };
 
-    function clearMailList() { document.getElementById("mail-list").innerHTML = ""; }
-    function clearMailContent() { document.getElementById("mail-content").innerHTML = ""; }
-
-    async function generateEmail() {
+  function login() {
+    const user = document.getElementById('username').value.trim();
+    const pass = document.getElementById('password').value.trim();
+    const match = accounts.find(acc => acc.username === user && acc.password === pass);
+    if (match) {
+      document.getElementById('login').style.display = "none";
+      document.getElementById('app').style.display = "block";
       clearMailList();
       clearMailContent();
-      try {
-        const domRes = await fetch("https://api.mail.tm/domains");
-        const domData = await domRes.json();
-        const domain = domData["hydra:member"][0].domain;
-        const username = Math.random().toString(36).substring(2, 11);
-        const emailAddr = `${username}@${domain}`;
-        const password = "P@ssw0rd123";
-
-        const regRes = await fetch("https://api.mail.tm/accounts", {
-          method: "POST",
-          headers: {"Content-Type": "application/json"},
-          body: JSON.stringify({ address: emailAddr, password })
-        });
-        const regData = await regRes.json();
-        if (regData["hydra:description"]) throw new Error(regData["hydra:description"]);
-
-        accountId = regData.id;
-
-        const tokenRes = await fetch("https://api.mail.tm/token", {
-          method: "POST",
-          headers: {"Content-Type": "application/json"},
-          body: JSON.stringify({ address: emailAddr, password })
-        });
-        const tokenData = await tokenRes.json();
-        token = tokenData.token;
-
-        address = emailAddr;
-        document.getElementById("email").innerText = address;
-        localStorage.setItem("mailtm_address", address);
-        localStorage.setItem("mailtm_token", token);
-        localStorage.setItem("mailtm_accountId", accountId);
-
-        fetchMailList();
-      } catch (err) {
-        console.error(err);
-        alert("이메일 생성 중 오류가 발생했습니다.");
-      }
+    } else {
+      document.getElementById('error').innerText = "아이디 또는 비밀번호가 잘못되었습니다.";
     }
+  }
 
-    async function fetchMailList() {
-      clearMailList();
-      clearMailContent();
-      if (!token) return;
+  function clearMailList() { document.getElementById("mail-list").innerHTML = ""; }
+  function clearMailContent() { document.getElementById("mail-content").innerHTML = ""; }
 
-      try {
-        const res = await fetch("https://api.mail.tm/messages", {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        if (!res.ok) throw new Error("메일 가져오기 실패");
-        const data = await res.json();
-        const mails = data["hydra:member"];
+  async function generateEmail() {
+    clearMailList();
+    clearMailContent();
+    try {
+      const domRes = await fetch("https://api.mail.tm/domains");
+      const domData = await domRes.json();
+      const domain = domData["hydra:member"][0].domain;
+      const username = Math.random().toString(36).substring(2, 11);
+      const emailAddr = `${username}@${domain}`;
+      const password = "P@ssw0rd123";
 
-        if (!Array.isArray(mails) || mails.length === 0) {
-          document.getElementById("mail-list").innerText = "받은 메일이 없습니다.";
-          return;
-        }
+      const regRes = await fetch("https://api.mail.tm/accounts", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ address: emailAddr, password })
+      });
+      const regData = await regRes.json();
+      if (regData["hydra:description"]) throw new Error(regData["hydra:description"]);
 
-        mails.forEach(mail => {
-          const mailDiv = document.createElement("div");
-          mailDiv.innerText = `[${mail.from.address}] ${mail.subject}`;
-          mailDiv.onclick = () => fetchMailContent(mail.id);
-          document.getElementById("mail-list").appendChild(mailDiv);
-        });
-      } catch (err) {
-        console.error(err);
+      accountId = regData.id;
+
+      const tokenRes = await fetch("https://api.mail.tm/token", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ address: emailAddr, password })
+      });
+      const tokenData = await tokenRes.json();
+      token = tokenData.token;
+
+      address = emailAddr;
+      document.getElementById("email").innerText = address;
+      localStorage.setItem("mailtm_address", address);
+      localStorage.setItem("mailtm_token", token);
+      localStorage.setItem("mailtm_accountId", accountId);
+
+      fetchMailList();
+    } catch (err) {
+      console.error(err);
+      alert("이메일 생성 중 오류가 발생했습니다.");
+    }
+  }
+
+  async function fetchMailList() {
+    clearMailList();
+    clearMailContent();
+    if (!token) return;
+
+    try {
+      const res = await fetch("https://api.mail.tm/messages", {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (!res.ok) throw new Error("메일 가져오기 실패");
+      const data = await res.json();
+      const mails = data["hydra:member"];
+
+      if (!Array.isArray(mails) || mails.length === 0) {
         document.getElementById("mail-list").innerText = "받은 메일이 없습니다.";
+        return;
       }
-    }
 
-    async function fetchMailContent(id) {
-      if (!token) return;
-      try {
-        const res = await fetch(`https://api.mail.tm/messages/${id}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        if (!res.ok) throw new Error("메일 내용 가져오기 실패");
-        const mail = await res.json();
-
-        let content = `보낸 사람: ${mail.from.address}\n제목: ${mail.subject}\n날짜: ${mail.intro}\n\n`;
-        if (mail.text) content += mail.text;
-        else content += "(본문 없음)";
-        document.getElementById("mail-content").innerText = content;
-      } catch (err) {
-        console.error(err);
-        document.getElementById("mail-content").innerText = "메일 내용을 불러오는 중 오류가 발생했습니다.";
-      }
+      mails.forEach(mail => {
+        const mailDiv = document.createElement("div");
+        mailDiv.innerText = `[${mail.from.address}] ${mail.subject}`;
+        mailDiv.onclick = () => fetchMailContent(mail.id);
+        document.getElementById("mail-list").appendChild(mailDiv);
+      });
+    } catch (err) {
+      console.error(err);
+      document.getElementById("mail-list").innerText = "받은 메일이 없습니다.";
     }
-  </script>
+  }
+
+  async function fetchMailContent(id) {
+    if (!token) return;
+    try {
+      const res = await fetch(`https://api.mail.tm/messages/${id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (!res.ok) throw new Error("메일 내용 가져오기 실패");
+      const mail = await res.json();
+
+      let content = `보낸 사람: ${mail.from.address}\n제목: ${mail.subject}\n날짜: ${mail.intro}\n\n`;
+      if (mail.text) content += mail.text;
+      else content += "(본문 없음)";
+      document.getElementById("mail-content").innerText = content;
+    } catch (err) {
+      console.error(err);
+      document.getElementById("mail-content").innerText = "메일 내용을 불러오는 중 오류가 발생했습니다.";
+    }
+  }
+</script>
 </body>
 </html>
