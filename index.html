@@ -4,11 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>이메일 생성기</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='80'>✉️</text></svg>">
   <style>
     body {
       margin: 0;
-      padding: 0;
       font-family: 'Segoe UI', sans-serif;
       background: linear-gradient(135deg, #000000, #1a1a1a);
       color: white;
@@ -18,15 +16,16 @@
       align-items: center;
       position: relative;
     }
+
     #account-create-btn {
       display: none;
-      position: fixed;  /* 오른쪽 상단에 고정 */
+      position: fixed;
       top: 20px;
       right: 20px;
-      padding: 10px 20px;
+      padding: 8px 16px;
       background-color: #f5b700;
       border: none;
-      border-radius: 8px;
+      border-radius: 6px;
       cursor: pointer;
       font-weight: bold;
       color: black;
@@ -36,6 +35,7 @@
     #account-create-btn:hover {
       background-color: #d49e00;
     }
+
     .container {
       background: #1c1c1c;
       padding: 30px;
@@ -45,6 +45,7 @@
       max-width: 400px;
       text-align: center;
     }
+
     h1 {
       display: flex;
       align-items: center;
@@ -53,6 +54,7 @@
       font-size: 24px;
       margin-bottom: 20px;
     }
+
     input, button {
       width: 100%;
       padding: 12px;
@@ -62,28 +64,42 @@
       font-size: 14px;
       box-sizing: border-box;
     }
+
     input {
       background: #eee;
       color: black;
     }
+
     button {
       background-color: #4f46e5;
       color: white;
       cursor: pointer;
     }
+
     button:hover {
       background-color: #3730a3;
     }
+
     #admin-message {
       color: yellow;
       font-weight: bold;
       margin-top: 10px;
     }
+
+    #create-account-form {
+      margin-top: 20px;
+      display: none;
+    }
+
+    #create-account-form input {
+      background: #ddd;
+    }
   </style>
 </head>
 <body>
+
   <!-- 관리자 로그인 시만 보이는 계정 생성 버튼 -->
-  <button id="account-create-btn" onclick="showAccountCreate()">계정 생성</button>
+  <button id="account-create-btn" onclick="toggleCreateForm()">계정 생성</button>
 
   <div class="container">
     <h1>✉️ 이메일 생성기</h1>
@@ -95,26 +111,63 @@
     </div>
 
     <div id="admin-message"></div>
+
+    <!-- 계정 생성 폼 -->
+    <div id="create-account-form">
+      <input type="text" id="new-username" placeholder="새 아이디" />
+      <input type="password" id="new-password" placeholder="새 비밀번호" />
+      <button onclick="createAccount()">계정 생성하기</button>
+      <div id="create-msg" style="margin-top:10px; color:lightgreen;"></div>
+    </div>
   </div>
 
   <script>
-    const ADMIN = { username: "minkyu4635", password: "mint3614" };
+    const admin = { username: "minkyu4635", password: "mint3614" };
+    const users = [
+      { username: "minkyu4635", password: "mint3614" }
+    ];
 
     function login() {
-      const username = document.getElementById("username").value.trim();
-      const password = document.getElementById("password").value.trim();
+      const id = document.getElementById("username").value.trim();
+      const pw = document.getElementById("password").value.trim();
+      const found = users.find(user => user.username === id && user.password === pw);
 
-      if (username === ADMIN.username && password === ADMIN.password) {
+      if (found) {
         document.getElementById("login-section").style.display = "none";
-        document.getElementById("admin-message").innerText = "민규님 어서오세요!";
-        document.getElementById("account-create-btn").style.display = "block"; // 관리자만 버튼 표시
+        document.getElementById("admin-message").innerText =
+          id === admin.username ? "민규님 어서오세요!" : `${id}님 반갑습니다.`;
+
+        if (id === admin.username) {
+          document.getElementById("account-create-btn").style.display = "block";
+        }
       } else {
         alert("아이디 또는 비밀번호가 잘못되었습니다.");
       }
     }
 
-    function showAccountCreate() {
-      alert("계정 생성 페이지를 구현하세요!");
+    function toggleCreateForm() {
+      const form = document.getElementById("create-account-form");
+      form.style.display = form.style.display === "block" ? "none" : "block";
+    }
+
+    function createAccount() {
+      const newId = document.getElementById("new-username").value.trim();
+      const newPw = document.getElementById("new-password").value.trim();
+      const exists = users.find(user => user.username === newId);
+
+      if (!newId || !newPw) {
+        alert("아이디와 비밀번호를 입력해주세요.");
+        return;
+      }
+      if (exists) {
+        alert("이미 존재하는 아이디입니다.");
+        return;
+      }
+
+      users.push({ username: newId, password: newPw });
+      document.getElementById("create-msg").innerText = `✅ ${newId} 계정이 생성되었습니다!`;
+      document.getElementById("new-username").value = "";
+      document.getElementById("new-password").value = "";
     }
   </script>
 </body>
