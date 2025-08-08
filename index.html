@@ -128,7 +128,8 @@
   <script>
     const ADMIN = { username: "minkyu4635", password: "mint3614" };
     let users = JSON.parse(localStorage.getItem("users")) || [ADMIN];
-    let token = "", address = "";
+    let token = "", address = "", currentUser = "";
+    let savedMails = [];
 
     function login() {
       const id = document.getElementById("username").value.trim();
@@ -136,6 +137,7 @@
       const user = users.find(u => u.username === id && u.password === pw);
 
       if (user) {
+        currentUser = id;
         document.getElementById("login-section").style.display = "none";
         document.getElementById("email-tools").style.display = "block";
 
@@ -144,6 +146,19 @@
           document.getElementById("account-create-btn").style.display = "inline-block";
         } else {
           document.getElementById("admin-message").innerText = `${id}님 반갑습니다.`;
+        }
+
+        // 이메일 & 메일 불러오기
+        const savedEmail = localStorage.getItem(`${id}_email`);
+        const savedMailList = JSON.parse(localStorage.getItem(`${id}_mails`) || "[]");
+
+        if (savedEmail) {
+          address = savedEmail;
+          document.getElementById("email").innerText = address;
+        }
+
+        if (savedMailList.length > 0) {
+          savedMailList.forEach(mail => addMailToList(mail));
         }
       } else {
         alert("아이디 또는 비밀번호가 잘못되었습니다.");
@@ -199,6 +214,8 @@
         token = tokenData.token;
 
         document.getElementById("email").innerText = address;
+        localStorage.setItem(`${currentUser}_email`, address);
+
         fetchMailList();
         setInterval(fetchMailList, 5000);
       } catch (err) {
@@ -215,6 +232,7 @@
         const mails = data["hydra:member"];
         const listEl = document.getElementById("mail-list");
         listEl.innerHTML = "";
+        savedMails = [];
 
         if (mails.length === 0) {
           listEl.innerText = "받은 메일이 없습니다.";
@@ -222,23 +240,35 @@
         }
 
         mails.forEach(mail => {
-          const item = document.createElement("div");
-          item.innerText = `[${mail.from.address}] ${mail.subject}`;
-          item.onclick = () => fetchMailContent(mail.id);
-          listEl.appendChild(item);
+          savedMails.push(mail);
+          addMailToList(mail);
         });
+
+        localStorage.setItem(`${currentUser}_mails`, JSON.stringify(savedMails));
       } catch (err) {
         console.error(err);
       }
     }
 
+    function addMailToList(mail) {
+      const item = document.createElement("div");
+      item.innerText = `[${mail.from?.address || "??"}] ${mail.subject}`;
+      item.onclick = () => fetchMailContent(mail.id);
+      document.getElementById("mail-list").appendChild(item);
+    }
+
     async function fetchMailContent(id) {
-      const res = await fetch(`https://api.mail.tm/messages/${id}`, {
-        headers: { Authorization: "Bearer " + token }
-      });
-      const mail = await res.json();
-      const content = `보낸 사람: ${mail.from.address}\n제목: ${mail.subject}\n\n${mail.text || "(내용 없음)"}`;
-      document.getElementById("mail-content").innerText = content;
+      try {
+        const res = await fetch(`https://api.mail.tm/messages/${id}`, {
+          headers: { Authorization: "Bearer " + token }
+        });
+        const mail = await res.json();
+        const content = `보낸 사람: ${mail.from.address}\n제목: ${mail.subject}\n\n${mail.text || "(내용 없음)"}`;
+        document.getElementById("mail-content").innerText = content;
+      } catch (err) {
+        console.error(err);
+        document.getElementById("mail-content").innerText = "(메일 불러오기 오류)";
+      }
     }
   </script>
 </body>
