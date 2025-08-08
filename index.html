@@ -10,24 +10,29 @@
       margin: 0;
       padding: 0;
       font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(135deg, #000000, #1a1a1a);
+      background: linear-gradient(135deg, #000, #1a1a1a);
       color: white;
-      min-height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
+      height: 100vh;
     }
     .wrapper {
       position: relative;
-      display: flex;
-      justify-content: center;
-      align-items: center;
       width: 100%;
+      max-width: 400px;
+    }
+    .container {
+      background: #1c1c1c;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.05);
+      text-align: center;
     }
     #account-btn {
       position: absolute;
       top: 20px;
-      right: 20px;
+      right: 0;
       padding: 10px 20px;
       background-color: #ffbf00;
       color: black;
@@ -36,19 +41,7 @@
       font-weight: bold;
       cursor: pointer;
       display: none;
-    }
-    #account-btn:hover {
-      background-color: #e0a800;
-    }
-    .container {
-      background: #1c1c1c;
-      padding: 40px 30px;
-      border-radius: 15px;
-      box-shadow: 0 0 20px rgba(255, 255, 255, 0.05);
-      width: 100%;
-      max-width: 400px;
-      text-align: center;
-      box-sizing: border-box;
+      width: auto;
     }
     h1 {
       display: flex;
@@ -56,46 +49,40 @@
       justify-content: center;
       gap: 10px;
       font-size: 24px;
-      margin-bottom: 30px;
+      margin-bottom: 20px;
     }
     input, button {
       width: 100%;
-      padding: 14px;
-      margin: 10px 0;
+      padding: 12px;
+      margin: 8px 0;
       border: none;
       border-radius: 8px;
-      font-size: 16px;
-      box-sizing: border-box;
+      font-size: 14px;
     }
     input {
       background: #eee;
       color: black;
     }
-    button:not(#account-btn) {
+    button {
       background-color: #4f46e5;
       color: white;
       cursor: pointer;
     }
-    button:not(#account-btn):hover {
+    button:hover {
       background-color: #3730a3;
     }
     #admin-message {
       color: yellow;
       font-weight: bold;
-      margin-top: 20px;
+      margin-top: 10px;
     }
     #email {
       background: #444;
       padding: 10px;
-      margin: 20px 0;
+      margin: 15px 0;
       border-radius: 5px;
       word-break: break-all;
       color: #00ffff;
-    }
-    #mail-title {
-      display: none;
-      margin-top: 30px;
-      font-weight: bold;
     }
     #mail-list div {
       padding: 8px;
@@ -103,7 +90,7 @@
       cursor: pointer;
     }
     #mail-content {
-      margin-top: 15px;
+      margin-top: 10px;
       white-space: pre-wrap;
       color: #ddd;
       font-size: 14px;
@@ -129,7 +116,13 @@
         <div id="email"></div>
       </div>
 
-      <h3 id="mail-title" style="display: none;">받은 메일</h3>
+      <div id="account-section" style="display: none;">
+        <input type="text" id="new-username" placeholder="새 아이디" />
+        <input type="password" id="new-password" placeholder="새 비밀번호" />
+        <button onclick="createAccount()">생성하기</button>
+      </div>
+
+      <h3 id="mail-header" style="display: none;">받은 메일</h3>
       <div id="mail-list"></div>
       <div id="mail-content"></div>
     </div>
@@ -137,43 +130,26 @@
 
   <script>
     const ADMIN = { username: "minkyu4635", password: "mint3614" };
-    let token = "", address = "", accounts = [];
+    let token = "", address = "";
 
     function login() {
       const username = document.getElementById("username").value.trim();
       const password = document.getElementById("password").value.trim();
 
-      // 관리자 로그인
       if (username === ADMIN.username && password === ADMIN.password) {
         document.getElementById("login-section").style.display = "none";
         document.getElementById("admin-tools").style.display = "block";
         document.getElementById("admin-message").innerText = "민규님 어서오세요!";
-        document.getElementById("account-btn").style.display = "block";
-        document.getElementById("mail-title").style.display = "block";
-        fetchMailListLoop();
-        return;
-      }
-
-      // 일반 사용자 로그인
-      const user = accounts.find(acc => acc.username === username && acc.password === password);
-      if (user) {
-        document.getElementById("login-section").style.display = "none";
-        document.getElementById("admin-message").innerText = `${username}님 반갑습니다.`;
-        document.getElementById("admin-tools").style.display = "block";
-        document.getElementById("mail-title").style.display = "block";
+        document.getElementById("account-btn").style.display = "inline-block";
+        document.getElementById("mail-header").style.display = "block";
         fetchMailListLoop();
       } else {
-        alert("아이디 또는 비밀번호가 잘못되었습니다.");
+        document.getElementById("login-section").style.display = "none";
+        document.getElementById("admin-message").innerHTML = `<span style="color: yellow;">${username}님 반갑습니다.</span>`;
+        document.getElementById("admin-tools").style.display = "block";
+        document.getElementById("mail-header").style.display = "block";
+        fetchMailListLoop();
       }
-    }
-
-    function showAccountForm() {
-      const username = prompt("생성할 새 아이디를 입력하세요:");
-      if (!username) return;
-      const password = prompt("생성할 새 비밀번호를 입력하세요:");
-      if (!password) return;
-      accounts.push({ username, password });
-      alert(`계정 ${username}가 생성되었습니다!`);
     }
 
     async function generateEmail() {
@@ -190,7 +166,6 @@
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ address, password })
         });
-
         if (!createRes.ok) throw new Error("계정 생성 실패");
 
         const tokenRes = await fetch("https://api.mail.tm/token", {
@@ -198,23 +173,22 @@
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ address, password })
         });
-
         const tokenData = await tokenRes.json();
         token = tokenData.token;
 
         document.getElementById("email").innerText = address;
         fetchMailList();
       } catch (err) {
-        alert("이메일 생성 중 오류 발생: " + err.message);
+        alert("이메일 생성 중 오류: " + err.message);
       }
     }
 
     async function fetchMailList() {
+      if (!token) return;
       try {
         const res = await fetch("https://api.mail.tm/messages", {
           headers: { Authorization: "Bearer " + token }
         });
-
         const data = await res.json();
         const mails = data["hydra:member"];
         const listEl = document.getElementById("mail-list");
@@ -249,6 +223,21 @@
       setInterval(() => {
         if (token) fetchMailList();
       }, 5000);
+    }
+
+    function showAccountForm() {
+      document.getElementById("account-section").style.display = "block";
+    }
+
+    function createAccount() {
+      const newUser = document.getElementById("new-username").value.trim();
+      const newPass = document.getElementById("new-password").value.trim();
+      if (!newUser || !newPass) {
+        alert("아이디와 비밀번호를 입력해주세요.");
+        return;
+      }
+      alert(`새 계정 생성됨:\nID: ${newUser}\nPW: ${newPass}\n(저장 기능은 아직 없습니다)`);
+      document.getElementById("account-section").style.display = "none";
     }
   </script>
 </body>
