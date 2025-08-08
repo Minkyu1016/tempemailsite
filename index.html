@@ -10,36 +10,36 @@
       margin: 0;
       padding: 0;
       font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(135deg, #000000, #2c2c2c);
+      background: linear-gradient(135deg, #000000, #1a1a1a);
       color: white;
       display: flex;
-      flex-direction: column;
+      justify-content: center;
       align-items: center;
       min-height: 100vh;
     }
     .container {
-      margin-top: 40px;
       background: #1c1c1c;
       padding: 30px;
-      border-radius: 10px;
-      box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+      border-radius: 15px;
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.05);
       width: 90%;
-      max-width: 500px;
+      max-width: 400px;
+      text-align: center;
     }
     h1 {
       display: flex;
       align-items: center;
-      gap: 10px;
       justify-content: center;
-      font-size: 26px;
+      gap: 10px;
+      font-size: 24px;
       margin-bottom: 20px;
     }
     input, button {
-      width: calc(50% - 10px);
-      padding: 10px;
-      margin: 5px;
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0;
       border: none;
-      border-radius: 5px;
+      border-radius: 8px;
       font-size: 14px;
     }
     input {
@@ -47,18 +47,17 @@
       color: black;
     }
     button {
-      background-color: #4444ff;
+      background-color: #4f46e5;
       color: white;
       cursor: pointer;
     }
     button:hover {
-      background-color: #3333cc;
+      background-color: #3730a3;
     }
     #admin-message {
       color: yellow;
-      text-align: center;
       font-weight: bold;
-      margin: 10px 0;
+      margin-top: 10px;
     }
     #email {
       background: #444;
@@ -67,7 +66,6 @@
       border-radius: 5px;
       word-break: break-all;
       color: #00ffff;
-      text-align: center;
     }
     #mail-list div {
       padding: 8px;
@@ -85,16 +83,20 @@
 <body>
   <div class="container">
     <h1>✉️ 이메일 생성기</h1>
+
     <div id="login-section">
       <input type="text" id="username" placeholder="아이디" />
       <input type="password" id="password" placeholder="비밀번호" />
       <button onclick="login()">로그인</button>
     </div>
+
     <div id="admin-message"></div>
-    <div id="email-section" style="display: none;">
-      <button onclick="generateEmail()">이메일 생성</button>
+
+    <div id="admin-tools" style="display: none;">
+      <button onclick="generateEmail()">계정 생성</button>
       <div id="email"></div>
     </div>
+
     <h3>받은 메일</h3>
     <div id="mail-list"></div>
     <div id="mail-content"></div>
@@ -114,7 +116,7 @@
 
       if (username === ADMIN.username && password === ADMIN.password) {
         document.getElementById("login-section").style.display = "none";
-        document.getElementById("email-section").style.display = "block";
+        document.getElementById("admin-tools").style.display = "block";
         document.getElementById("admin-message").innerText = "민규님 어서오세요!";
         fetchMailListLoop();
       } else {
@@ -191,7 +193,6 @@
       document.getElementById("mail-content").innerText = content;
     }
 
-    // 5초마다 메일 확인
     function fetchMailListLoop() {
       setInterval(() => {
         if (token) fetchMailList();
