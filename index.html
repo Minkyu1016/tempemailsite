@@ -23,9 +23,10 @@
       padding: 30px;
       border-radius: 15px;
       box-shadow: 0 0 20px rgba(255, 255, 255, 0.05);
-      width: 90%;
+      width: 100%;
       max-width: 400px;
       text-align: center;
+      box-sizing: border-box;
     }
     h1 {
       display: flex;
@@ -42,6 +43,7 @@
       border: none;
       border-radius: 8px;
       font-size: 14px;
+      box-sizing: border-box;
     }
     input {
       background: #eee;
@@ -64,6 +66,7 @@
       padding: 8px 12px;
       background-color: #facc15;
       color: black;
+      font-weight: bold;
     }
     #admin-message {
       color: yellow;
@@ -75,7 +78,7 @@
       padding: 10px;
       margin: 15px 0;
       border-radius: 5px;
-      word-break: break-all;
+      word-break: break-word;
       color: #00ffff;
     }
     #mail-list div {
@@ -124,10 +127,7 @@
 
   <script>
     const ADMIN = { username: "minkyu4635", password: "mint3614" };
-
-    // 기존 사용자 정보 불러오기 또는 관리자 계정으로 초기화
     let users = JSON.parse(localStorage.getItem("users")) || [ADMIN];
-
     let token = "", address = "";
 
     function login() {
