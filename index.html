@@ -2,13 +2,10 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>이메일 생성기</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='80'>✉️</text></svg>">
   <style>
-    * {
-      box-sizing: border-box;
-    }
     body {
       margin: 0;
       padding: 0;
@@ -20,18 +17,16 @@
       align-items: center;
       min-height: 100vh;
     }
-
     .container {
-      position: relative;
       background: #1c1c1c;
-      padding: 30px 20px;
+      padding: 30px;
       border-radius: 15px;
       box-shadow: 0 0 20px rgba(255, 255, 255, 0.05);
       width: 90%;
       max-width: 400px;
       text-align: center;
+      position: relative;
     }
-
     h1 {
       display: flex;
       align-items: center;
@@ -40,7 +35,6 @@
       font-size: 24px;
       margin-bottom: 20px;
     }
-
     input, button {
       width: 100%;
       padding: 12px;
@@ -49,56 +43,59 @@
       border-radius: 8px;
       font-size: 14px;
     }
-
     input {
       background: #eee;
       color: black;
     }
-
     button {
       background-color: #4f46e5;
       color: white;
       cursor: pointer;
     }
-
     button:hover {
       background-color: #3730a3;
     }
-
     #admin-message {
       color: yellow;
       font-weight: bold;
       margin-top: 10px;
     }
-
-    #account-create-btn {
+    #email {
+      background: #444;
+      padding: 10px;
+      margin: 15px 0;
+      border-radius: 5px;
+      word-break: break-all;
+      color: #00ffff;
+    }
+    #mail-list div {
+      padding: 8px;
+      border-bottom: 1px solid #555;
+      cursor: pointer;
+    }
+    #mail-content {
+      margin-top: 10px;
+      white-space: pre-wrap;
+      color: #ddd;
+      font-size: 14px;
+    }
+    #account-creation {
+      background-color: #ffc107;
+      color: black;
+      cursor: pointer;
       position: absolute;
       top: 20px;
       right: 20px;
-      background: #ffbb00;
-      color: black;
-      font-weight: bold;
-      padding: 8px 14px;
-      border-radius: 6px;
-      font-size: 13px;
-      width: auto;
-    }
-
-    #account-create-section {
+      padding: 10px 15px;
+      border-radius: 8px;
       display: none;
-      margin-top: 20px;
-    }
-
-    #create-result {
-      font-size: 13px;
-      color: lightgreen;
-      margin-top: 10px;
     }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>✉️ 이메일 생성기</h1>
+    <div id="account-creation" onclick="showAccountCreation()">계정 생성</div>
 
     <div id="login-section">
       <input type="text" id="username" placeholder="아이디" />
@@ -106,74 +103,129 @@
       <button onclick="login()">로그인</button>
     </div>
 
-    <p id="admin-message"></p>
+    <div id="welcome-message"></div>
 
-    <button id="account-create-btn" onclick="toggleAccountCreator()" style="display:none;">계정 생성</button>
+    <div id="email-tools" style="display: none;">
+      <button onclick="generateEmail()">임시 이메일 생성</button>
+      <div id="email"></div>
+      <h3>받은 메일</h3>
+      <div id="mail-list"></div>
+      <div id="mail-content"></div>
+    </div>
 
-    <div id="account-create-section">
-      <input type="text" id="new-username" placeholder="새 아이디" />
-      <input type="password" id="new-password" placeholder="새 비밀번호" />
+    <div id="account-tools" style="display: none;">
+      <input type="text" id="new-username" placeholder="새 아이디"/>
+      <input type="password" id="new-password" placeholder="새 비밀번호"/>
       <button onclick="createAccount()">생성하기</button>
-      <p id="create-result"></p>
     </div>
   </div>
 
   <script>
-    const ADMIN = {
-      username: "minkyu4635",
-      password: "mint3614"
-    };
-
-    if (!localStorage.getItem("users")) {
-      const defaultUsers = [{ username: ADMIN.username, password: ADMIN.password }];
-      localStorage.setItem("users", JSON.stringify(defaultUsers));
-    }
+    const ADMIN = { username: "minkyu4635", password: "mint3614" };
+    let token = "", address = "";
 
     function login() {
-      const id = document.getElementById("username").value.trim();
-      const pw = document.getElementById("password").value.trim();
-      const users = JSON.parse(localStorage.getItem("users"));
-      const match = users.find(u => u.username === id && u.password === pw);
+      const username = document.getElementById("username").value.trim();
+      const password = document.getElementById("password").value.trim();
+      const loginSection = document.getElementById("login-section");
+      const welcome = document.getElementById("welcome-message");
+      const emailTools = document.getElementById("email-tools");
+      const accBtn = document.getElementById("account-creation");
 
-      if (match) {
-        document.getElementById("login-section").style.display = "none";
+      if (!username || !password) return alert("아이디와 비밀번호를 입력하세요.");
 
-        if (id === ADMIN.username) {
-          document.getElementById("admin-message").innerText = "민규님 어서오세요!";
-          document.getElementById("account-create-btn").style.display = "block";
-        } else {
-          document.getElementById("admin-message").innerText = `${id}님 반갑습니다.`;
-        }
+      if (username === ADMIN.username && password === ADMIN.password) {
+        loginSection.style.display = "none";
+        welcome.innerHTML = "민규님 어서오세요!";
+        accBtn.style.display = "block";
+        emailTools.style.display = "block";
       } else {
-        alert("아이디 또는 비밀번호가 잘못되었습니다.");
+        // 일반 사용자 로그인
+        if (localStorage.getItem(username) === password) {
+          loginSection.style.display = "none";
+          welcome.innerHTML = `${username}님 반갑습니다.`;
+          emailTools.style.display = "block";
+        } else {
+          alert("아이디 또는 비밀번호가 잘못되었습니다.");
+        }
       }
     }
 
-    function toggleAccountCreator() {
-      const section = document.getElementById("account-create-section");
-      section.style.display = section.style.display === "none" ? "block" : "none";
+    function showAccountCreation() {
+      document.getElementById("account-tools").style.display = "block";
     }
 
     function createAccount() {
-      const newId = document.getElementById("new-username").value.trim();
-      const newPw = document.getElementById("new-password").value.trim();
-      const users = JSON.parse(localStorage.getItem("users"));
+      const newUser = document.getElementById("new-username").value.trim();
+      const newPass = document.getElementById("new-password").value.trim();
+      if (!newUser || !newPass) return alert("새 계정 정보를 입력하세요.");
+      localStorage.setItem(newUser, newPass);
+      alert(`계정이 생성되었습니다:\n아이디: ${newUser}\n비밀번호: ${newPass}`);
+      document.getElementById("account-tools").style.display = "none";
+    }
 
-      if (!newId || !newPw) {
-        document.getElementById("create-result").innerText = "모든 항목을 입력하세요.";
+    async function generateEmail() {
+      try {
+        const domRes = await fetch("https://api.mail.tm/domains");
+        const domains = await domRes.json();
+        const domain = domains["hydra:member"][0].domain;
+        const local = Math.random().toString(36).substring(2, 11);
+        address = `${local}@${domain}`;
+        const pw = "Test123456";
+
+        const createRes = await fetch("https://api.mail.tm/accounts", {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify({address, password: pw})
+        });
+        if (!createRes.ok) throw new Error("메일 계정 생성 실패");
+
+        const tokenRes = await fetch("https://api.mail.tm/token", {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify({address, password: pw})
+        });
+        const tokenData = await tokenRes.json();
+        token = tokenData.token;
+
+        document.getElementById("email").innerText = address;
+        fetchMailList();
+        setInterval(fetchMailList, 5000);
+      } catch (err) {
+        alert("이메일 생성 오류: " + err.message);
+      }
+    }
+
+    async function fetchMailList() {
+      if (!token) return;
+      const res = await fetch("https://api.mail.tm/messages", {
+        headers: { Authorization: "Bearer " + token }
+      });
+      const data = await res.json();
+      const mails = data["hydra:member"];
+      const listEl = document.getElementById("mail-list");
+      listEl.innerHTML = "";
+
+      if (!mails.length) {
+        listEl.innerText = "받은 메일이 없습니다.";
         return;
       }
 
-      if (users.some(u => u.username === newId)) {
-        document.getElementById("create-result").innerText = "이미 존재하는 아이디입니다.";
-        return;
-      }
+      mails.forEach(mail => {
+        const item = document.createElement("div");
+        item.innerText = `[${mail.from.address}] ${mail.subject}`;
+        item.onclick = () => fetchMailContent(mail.id);
+        listEl.appendChild(item);
+      });
+    }
 
-      users.push({ username: newId, password: newPw });
-      localStorage.setItem("users", JSON.stringify(users));
-      document.getElementById("create-result").innerText = `${newId} 계정이 성공적으로 생성되었습니다!`;
-      document.getElementById("new-username").value = "";
-      document.getElementById("new-password").value = "";
+    async function fetchMailContent(id) {
+      const res = await fetch(`https://api.mail.tm/messages/${id}`, {
+        headers: { Authorization: "Bearer " + token }
+      });
+      const mail = await res.json();
+      const content = `보낸 사람: ${mail.from.address}\n제목: ${mail.subject}\n\n${mail.text || "(내용 없음)"}`;
+      document.getElementById("mail-content").innerText = content;
     }
   </script>
 </body>
