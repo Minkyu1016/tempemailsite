@@ -1,0 +1,33 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>✉️ 이메일 생성기</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='80'>✉️</text></svg>">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <div id="login-box">
+      <h1>✉️ 이메일 생성기</h1>
+      <input type="text" id="username" placeholder="아이디" />
+      <input type="password" id="password" placeholder="비밀번호" />
+      <button onclick="login()">로그인</button>
+      <p id="error" class="error"></p>
+    </div>
+
+    <div id="admin-box" style="display: none;">
+      <h2 id="welcome" class="welcome"></h2>
+      <button onclick="generateEmail()">이메일 생성</button>
+      <div id="email" class="email-display"></div>
+      <h3>받은 메일</h3>
+      <div id="mail-list" class="mail-box"></div>
+      <div id="mail-content" class="mail-content"></div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

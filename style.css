@@ -1,0 +1,78 @@
+
+body {
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background: linear-gradient(135deg, #dfe4ea, #a4b0be);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.container {
+  background: white;
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+  width: 400px;
+  text-align: center;
+}
+
+input, button {
+  width: 90%;
+  padding: 10px;
+  margin: 10px 0;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+}
+
+button {
+  background-color: #57606f;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #2f3542;
+}
+
+.email-display {
+  margin-top: 10px;
+  font-weight: bold;
+  color: #2f3542;
+  background: #f1f2f6;
+  padding: 10px;
+  border-radius: 8px;
+}
+
+.mail-box, .mail-content {
+  text-align: left;
+  margin-top: 10px;
+  padding: 10px;
+  background: #f8f9fa;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.mail-box div {
+  cursor: pointer;
+  padding: 5px;
+  border-bottom: 1px solid #ddd;
+}
+
+.mail-box div:hover {
+  background: #dfe4ea;
+}
+
+.welcome {
+  color: #f1c40f;
+  font-size: 18px;
+}
+
+.error {
+  color: red;
+}
