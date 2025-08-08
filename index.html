@@ -28,6 +28,7 @@
       text-align: center;
     }
     #account-create-btn {
+      display: none; /* 기본적으로 숨김 */
       position: absolute;
       top: -50px;
       right: 0;
@@ -129,17 +130,21 @@
     function login() {
       const username = document.getElementById("username").value.trim();
       const password = document.getElementById("password").value.trim();
+
       if (username === ADMIN.username && password === ADMIN.password) {
+        document.getElementById("account-create-btn").style.display = "block"; // 관리자 계정일 때만 계정 생성 버튼 표시
         document.getElementById("login-section").style.display = "none";
         document.getElementById("admin-tools").style.display = "block";
         document.getElementById("mail-title").style.display = "block";
         document.getElementById("admin-message").innerText = "민규님 어서오세요!";
         fetchMailListLoop();
-      } else {
+      } else if (username && password) {
         document.getElementById("login-section").style.display = "none";
         document.getElementById("admin-tools").style.display = "block";
         document.getElementById("mail-title").style.display = "block";
         document.getElementById("admin-message").innerText = `${username}님 반갑습니다.`;
+      } else {
+        alert("아이디와 비밀번호를 입력하세요.");
       }
     }
 
