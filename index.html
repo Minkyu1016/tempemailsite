@@ -3,39 +3,20 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>이메일 생성기</title>
+  <title>✉️ 이메일 생성기</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='80'>✉️</text></svg>">
   <style>
     body {
       margin: 0;
+      padding: 0;
       font-family: 'Segoe UI', sans-serif;
       background: linear-gradient(135deg, #000000, #1a1a1a);
       color: white;
-      height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
-      position: relative;
+      min-height: 100vh;
     }
-
-    #account-create-btn {
-      display: none;
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      padding: 8px 16px;
-      background-color: #f5b700;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: bold;
-      color: black;
-      transition: background 0.3s;
-      z-index: 999;
-    }
-    #account-create-btn:hover {
-      background-color: #d49e00;
-    }
-
     .container {
       background: #1c1c1c;
       padding: 30px;
@@ -44,8 +25,8 @@
       width: 90%;
       max-width: 400px;
       text-align: center;
+      position: relative;
     }
-
     h1 {
       display: flex;
       align-items: center;
@@ -54,7 +35,6 @@
       font-size: 24px;
       margin-bottom: 20px;
     }
-
     input, button {
       width: 100%;
       padding: 12px;
@@ -62,45 +42,58 @@
       border: none;
       border-radius: 8px;
       font-size: 14px;
-      box-sizing: border-box;
     }
-
     input {
       background: #eee;
       color: black;
     }
-
     button {
       background-color: #4f46e5;
       color: white;
       cursor: pointer;
     }
-
     button:hover {
       background-color: #3730a3;
     }
-
     #admin-message {
       color: yellow;
       font-weight: bold;
       margin-top: 10px;
     }
-
-    #create-account-form {
-      margin-top: 20px;
-      display: none;
+    #email {
+      background: #444;
+      padding: 10px;
+      margin: 15px 0;
+      border-radius: 5px;
+      word-break: break-all;
+      color: #00ffff;
     }
-
-    #create-account-form input {
-      background: #ddd;
+    #mail-list div {
+      padding: 8px;
+      border-bottom: 1px solid #555;
+      cursor: pointer;
+    }
+    #mail-content {
+      margin-top: 10px;
+      white-space: pre-wrap;
+      color: #ddd;
+      font-size: 14px;
+    }
+    #create-account-btn {
+      position: absolute;
+      top: -50px;
+      right: 0;
+      background-color: gold;
+      color: black;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 13px;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
-
-  <!-- 관리자 로그인 시만 보이는 계정 생성 버튼 -->
-  <button id="account-create-btn" onclick="toggleCreateForm()">계정 생성</button>
-
   <div class="container">
     <h1>✉️ 이메일 생성기</h1>
 
@@ -112,62 +105,72 @@
 
     <div id="admin-message"></div>
 
-    <!-- 계정 생성 폼 -->
-    <div id="create-account-form">
-      <input type="text" id="new-username" placeholder="새 아이디" />
-      <input type="password" id="new-password" placeholder="새 비밀번호" />
-      <button onclick="createAccount()">계정 생성하기</button>
-      <div id="create-msg" style="margin-top:10px; color:lightgreen;"></div>
+    <div id="admin-tools" style="display: none;">
+      <button onclick="generateEmail()">임시 이메일 생성</button>
+      <div id="email"></div>
+    </div>
+
+    <div id="user-tools" style="display: none;">
+      <h3>받은 메일</h3>
+      <div id="mail-list"></div>
+      <div id="mail-content"></div>
     </div>
   </div>
 
   <script>
-    const admin = { username: "minkyu4635", password: "mint3614" };
-    const users = [
-      { username: "minkyu4635", password: "mint3614" }
-    ];
+    const ADMIN = { username: "minkyu4635", password: "mint3614" };
 
     function login() {
-      const id = document.getElementById("username").value.trim();
-      const pw = document.getElementById("password").value.trim();
-      const found = users.find(user => user.username === id && user.password === pw);
+      const username = document.getElementById("username").value.trim();
+      const password = document.getElementById("password").value.trim();
 
-      if (found) {
+      if (username === ADMIN.username && password === ADMIN.password) {
         document.getElementById("login-section").style.display = "none";
-        document.getElementById("admin-message").innerText =
-          id === admin.username ? "민규님 어서오세요!" : `${id}님 반갑습니다.`;
-
-        if (id === admin.username) {
-          document.getElementById("account-create-btn").style.display = "block";
-        }
+        document.getElementById("admin-message").innerText = "민규님 어서오세요!";
+        document.getElementById("admin-tools").style.display = "block";
+        showCreateAccountButton();
+      } else if (localStorage.getItem(`account_${username}`) === password) {
+        document.getElementById("login-section").style.display = "none";
+        document.getElementById("admin-message").innerText = `${username}님 반갑습니다.`;
+        document.getElementById("user-tools").style.display = "block";
       } else {
         alert("아이디 또는 비밀번호가 잘못되었습니다.");
       }
     }
 
-    function toggleCreateForm() {
-      const form = document.getElementById("create-account-form");
-      form.style.display = form.style.display === "block" ? "none" : "block";
+    function showCreateAccountButton() {
+      const btn = document.createElement("button");
+      btn.id = "create-account-btn";
+      btn.innerText = "계정 생성";
+      btn.onclick = showCreateAccountForm;
+      document.querySelector(".container").appendChild(btn);
+    }
+
+    function showCreateAccountForm() {
+      document.querySelector(".container").innerHTML = `
+        <h1>✉️ 이메일 생성기</h1>
+        <div id="admin-message" style="color:yellow;">계정 생성</div>
+        <input type="text" id="new-username" placeholder="새 아이디" />
+        <input type="password" id="new-password" placeholder="새 비밀번호" />
+        <button onclick="createAccount()">생성하기</button>
+      `;
     }
 
     function createAccount() {
-      const newId = document.getElementById("new-username").value.trim();
-      const newPw = document.getElementById("new-password").value.trim();
-      const exists = users.find(user => user.username === newId);
-
-      if (!newId || !newPw) {
-        alert("아이디와 비밀번호를 입력해주세요.");
-        return;
+      const newUsername = document.getElementById("new-username").value.trim();
+      const newPassword = document.getElementById("new-password").value.trim();
+      if (newUsername && newPassword) {
+        localStorage.setItem(`account_${newUsername}`, newPassword);
+        alert(`계정 ${newUsername} 생성 완료!`);
+        location.reload();
+      } else {
+        alert("아이디와 비밀번호를 입력하세요.");
       }
-      if (exists) {
-        alert("이미 존재하는 아이디입니다.");
-        return;
-      }
+    }
 
-      users.push({ username: newId, password: newPw });
-      document.getElementById("create-msg").innerText = `✅ ${newId} 계정이 생성되었습니다!`;
-      document.getElementById("new-username").value = "";
-      document.getElementById("new-password").value = "";
+    async function generateEmail() {
+      alert("임시 이메일 생성 기능은 현재 예제로만 표시됩니다.");
+      // Mail.tm API 연동 로직 필요 시 여기에 추가
     }
   </script>
 </body>
