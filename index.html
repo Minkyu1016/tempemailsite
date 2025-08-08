@@ -36,7 +36,7 @@
       font-size: 24px;
       margin-bottom: 20px;
     }
-    input, button, textarea {
+    input, button {
       width: 100%;
       padding: 12px;
       margin: 8px 0;
@@ -45,7 +45,7 @@
       font-size: 14px;
       box-sizing: border-box;
     }
-    input, textarea {
+    input {
       background: #eee;
       color: black;
     }
@@ -92,13 +92,8 @@
       color: #ddd;
       font-size: 14px;
     }
-    #account-create-section, #email-send-section {
+    #account-create-section {
       display: none;
-    }
-    .send-status {
-      font-size: 14px;
-      color: lightgreen;
-      margin-top: 5px;
     }
   </style>
 </head>
@@ -127,15 +122,6 @@
       <h3>받은 메일</h3>
       <div id="mail-list"></div>
       <div id="mail-content"></div>
-
-      <div id="email-send-section">
-        <h3>이메일 보내기</h3>
-        <input type="text" id="to-email" placeholder="받는 사람 이메일"/>
-        <input type="text" id="subject" placeholder="제목"/>
-        <textarea id="body" rows="4" placeholder="본문 내용"></textarea>
-        <button onclick="sendEmail()">보내기</button>
-        <div id="send-status" class="send-status"></div>
-      </div>
     </div>
   </div>
 
@@ -162,13 +148,13 @@
           document.getElementById("admin-message").innerText = `${id}님 반갑습니다.`;
         }
 
+        // 이메일 & 메일 불러오기
         const savedEmail = localStorage.getItem(`${id}_email`);
         const savedMailList = JSON.parse(localStorage.getItem(`${id}_mails`) || "[]");
 
         if (savedEmail) {
           address = savedEmail;
           document.getElementById("email").innerText = address;
-          document.getElementById("email-send-section").style.display = "block";
         }
 
         if (savedMailList.length > 0) {
@@ -229,7 +215,6 @@
 
         document.getElementById("email").innerText = address;
         localStorage.setItem(`${currentUser}_email`, address);
-        document.getElementById("email-send-section").style.display = "block";
 
         fetchMailList();
         setInterval(fetchMailList, 5000);
@@ -283,41 +268,6 @@
       } catch (err) {
         console.error(err);
         document.getElementById("mail-content").innerText = "(메일 불러오기 오류)";
-      }
-    }
-
-    async function sendEmail() {
-      const to = document.getElementById("to-email").value.trim();
-      const subject = document.getElementById("subject").value.trim();
-      const body = document.getElementById("body").value.trim();
-
-      if (!to || !subject || !body) {
-        alert("모든 항목을 입력해주세요.");
-        return;
-      }
-
-      try {
-        const res = await fetch("https://api.mail.tm/messages", {
-          method: "POST",
-          headers: {
-            Authorization: "Bearer " + token,
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            to: [to],
-            subject,
-            text: body
-          })
-        });
-
-        if (!res.ok) throw new Error("전송 실패");
-
-        document.getElementById("send-status").innerText = "✅ 메일 전송 성공!";
-        document.getElementById("to-email").value = "";
-        document.getElementById("subject").value = "";
-        document.getElementById("body").value = "";
-      } catch (err) {
-        document.getElementById("send-status").innerText = "❌ 메일 전송 실패: " + err.message;
       }
     }
   </script>
