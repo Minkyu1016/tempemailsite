@@ -17,6 +17,7 @@
       align-items: center;
       min-height: 100vh;
     }
+
     .container {
       background: #1c1c1c;
       padding: 30px;
@@ -24,8 +25,11 @@
       box-shadow: 0 0 20px rgba(255, 255, 255, 0.05);
       width: 90%;
       max-width: 400px;
-      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center; /* 중앙 정렬 핵심 */
     }
+
     h1 {
       display: flex;
       align-items: center;
@@ -34,6 +38,7 @@
       font-size: 24px;
       margin-bottom: 20px;
     }
+
     input, button {
       width: 100%;
       padding: 12px;
@@ -41,42 +46,57 @@
       border: none;
       border-radius: 8px;
       font-size: 14px;
+      box-sizing: border-box;
     }
+
     input {
       background: #eee;
       color: black;
     }
+
     button {
       background-color: #4f46e5;
       color: white;
       cursor: pointer;
     }
+
     button:hover {
       background-color: #3730a3;
     }
+
     #admin-message {
       color: yellow;
       font-weight: bold;
       margin-top: 10px;
     }
+
     #email {
       background: #444;
       padding: 10px;
       margin: 15px 0;
       border-radius: 5px;
-      word-break: break-all;
+      word-break: break-word;
       color: #00ffff;
     }
+
     #mail-list div {
       padding: 8px;
       border-bottom: 1px solid #555;
       cursor: pointer;
     }
+
     #mail-content {
       margin-top: 10px;
       white-space: pre-wrap;
       color: #ddd;
       font-size: 14px;
+    }
+
+    #mail-section {
+      display: none; /* 로그인 후에만 표시 */
+      width: 100%;
+      text-align: left;
+      margin-top: 20px;
     }
   </style>
 </head>
@@ -92,14 +112,16 @@
 
     <div id="admin-message"></div>
 
-    <div id="admin-tools" style="display: none;">
+    <div id="admin-tools" style="display: none; width: 100%;">
       <button onclick="generateEmail()">계정 생성</button>
       <div id="email"></div>
     </div>
 
-    <h3>받은 메일</h3>
-    <div id="mail-list"></div>
-    <div id="mail-content"></div>
+    <div id="mail-section">
+      <h3>받은 메일</h3>
+      <div id="mail-list"></div>
+      <div id="mail-content"></div>
+    </div>
   </div>
 
   <script>
@@ -118,6 +140,7 @@
         document.getElementById("login-section").style.display = "none";
         document.getElementById("admin-tools").style.display = "block";
         document.getElementById("admin-message").innerText = "민규님 어서오세요!";
+        document.getElementById("mail-section").style.display = "block";
         fetchMailListLoop();
       } else {
         alert("아이디 또는 비밀번호가 잘못되었습니다.");
