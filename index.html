@@ -19,11 +19,15 @@
     }
     .wrapper {
       position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
     }
     #account-btn {
       position: absolute;
-      top: -50px;
-      right: 0;
+      top: 20px;
+      right: 20px;
       padding: 10px 20px;
       background-color: #ffbf00;
       color: black;
@@ -38,14 +42,13 @@
     }
     .container {
       background: #1c1c1c;
-      padding: 30px;
+      padding: 40px 30px;
       border-radius: 15px;
       box-shadow: 0 0 20px rgba(255, 255, 255, 0.05);
-      width: 90%;
+      width: 100%;
       max-width: 400px;
       text-align: center;
       box-sizing: border-box;
-      position: relative;
     }
     h1 {
       display: flex;
@@ -53,15 +56,16 @@
       justify-content: center;
       gap: 10px;
       font-size: 24px;
-      margin-bottom: 20px;
+      margin-bottom: 30px;
     }
     input, button {
       width: 100%;
-      padding: 12px;
-      margin: 8px 0;
+      padding: 14px;
+      margin: 10px 0;
       border: none;
       border-radius: 8px;
-      font-size: 14px;
+      font-size: 16px;
+      box-sizing: border-box;
     }
     input {
       background: #eee;
@@ -78,15 +82,20 @@
     #admin-message {
       color: yellow;
       font-weight: bold;
-      margin-top: 10px;
+      margin-top: 20px;
     }
     #email {
       background: #444;
       padding: 10px;
-      margin: 15px 0;
+      margin: 20px 0;
       border-radius: 5px;
       word-break: break-all;
       color: #00ffff;
+    }
+    #mail-title {
+      display: none;
+      margin-top: 30px;
+      font-weight: bold;
     }
     #mail-list div {
       padding: 8px;
@@ -94,7 +103,7 @@
       cursor: pointer;
     }
     #mail-content {
-      margin-top: 10px;
+      margin-top: 15px;
       white-space: pre-wrap;
       color: #ddd;
       font-size: 14px;
